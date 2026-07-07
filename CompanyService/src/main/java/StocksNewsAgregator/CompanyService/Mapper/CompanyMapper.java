@@ -1,6 +1,7 @@
 package StocksNewsAgregator.CompanyService.Mapper;
 
 import StocksNewsAgregator.CompanyService.Dtos.CompanyDto;
+import StocksNewsAgregator.CompanyService.Dtos.MatchingCompanyDto;
 import StocksNewsAgregator.CompanyService.Entities.Company;
 
 public class CompanyMapper {
@@ -28,5 +29,13 @@ public class CompanyMapper {
         company.setDelistedAt(companyDto.getDelistedAt());
 
         return company;
+    }
+    public static MatchingCompanyDto CompanyToMatchingCompanyDto(Company company) {
+        MatchingCompanyDto matchingCompanyDto = new MatchingCompanyDto();
+        matchingCompanyDto.setId(company.getId());
+        matchingCompanyDto.setName(company.getName());
+        matchingCompanyDto.setShortName(company.getShortName());
+        matchingCompanyDto.setTicker(company.getTicker());
+        return matchingCompanyDto;
     }
 }

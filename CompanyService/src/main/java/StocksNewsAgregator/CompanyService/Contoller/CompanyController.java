@@ -1,6 +1,7 @@
 package StocksNewsAgregator.CompanyService.Contoller;
 
 import StocksNewsAgregator.CompanyService.Dtos.CompanyDto;
+import StocksNewsAgregator.CompanyService.Dtos.MatchingCompanyDto;
 import StocksNewsAgregator.CompanyService.Service.Company.CompanyService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +33,9 @@ public class CompanyController {
     @DeleteMapping({"/{id}"})
     public void DeleteCompany(@PathVariable String isin) {
         companyService.DeleteCompany(isin);
+    }
+    @GetMapping("/matching")
+    public ResponseEntity<List<MatchingCompanyDto>> GetMatchingCompanies() {
+        return ResponseEntity.ok(companyService.GetMatchingCompanies());
     }
 }

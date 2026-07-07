@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +29,17 @@ public class CompanyViewServiceImpl implements CompanyViewService {
     @Override
     public CompanyViewDto GetCompanyView(String isin) {
         Company company = companyRepository.findByIsin(isin).get();
+        CompanyChartMapping companyChartMapping = companyChartMappingRepository.findByCompanyId(company.getId());
+        List<CompanyAlias> companyAliases = companyAliasRepository.findByCompanyId(company.getId());
+        CompanyDto companyDto = CompanyMapper.CompanyToCompanyDto(company);
+        CompanyChartMappingDto companyChartMappingDto = CompanyChartMappingMapper.CompanyChartMappingToCompanyChartMappingDto(companyChartMapping);
+        List<CompanyAliasDto> companyAliasesDtos = companyAliases.stream().map(CompanyAliasMapper::CompanyAliasToCompanyAliasDto).toList();
+        return new CompanyViewDto(companyDto, companyChartMappingDto, companyAliasesDtos);
+    }
+
+    @Override
+    public CompanyViewDto GetCompanyViewById(UUID id) {
+        Company company = companyRepository.findById(id).get();
         CompanyChartMapping companyChartMapping = companyChartMappingRepository.findByCompanyId(company.getId());
         List<CompanyAlias> companyAliases = companyAliasRepository.findByCompanyId(company.getId());
         CompanyDto companyDto = CompanyMapper.CompanyToCompanyDto(company);
