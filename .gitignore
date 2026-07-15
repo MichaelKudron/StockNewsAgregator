@@ -1,12 +1,36 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Java / Maven
+target/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Env & logs
+.env
+*.log
+*.err
+
+# AI tooling
+.claude/settings.local.json
+.agents/
+.codex/
+
+# Office temp files
+~$*
+
 ### Windows
-# Windows thumbnail cache files
 Thumbs.db
-
-# Folder config file
 [Dd]esktop.ini
-
-# Recycle Bin used on file shares
 $RECYCLE.BIN/
-
-# Windows shortcuts
 *.lnk
