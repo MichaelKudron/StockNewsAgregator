@@ -10,6 +10,7 @@ public class ArticleCompanyLinkMapper {
        articleCompanyLink.setCompanyId(dto.getCompanyId());
        articleCompanyLink.setMatchScore(dto.getMatchScore());
        articleCompanyLink.setMatchType(dto.getMatchType());
+       articleCompanyLink.setMatchLevel(dto.getMatchLevel());
        return articleCompanyLink;
     }
     public static ArticleCompanyLinkDto mapToDto(ArticleCompanyLink entity) {
@@ -18,6 +19,7 @@ public class ArticleCompanyLinkMapper {
         dto.setCompanyId(entity.getCompanyId());
         dto.setMatchScore(entity.getMatchScore());
         dto.setMatchType(entity.getMatchType());
+        dto.setMatchLevel(entity.getMatchLevel());
         return dto;
     }
 }

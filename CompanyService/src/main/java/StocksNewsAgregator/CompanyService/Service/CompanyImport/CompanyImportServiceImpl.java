@@ -64,11 +64,7 @@ public class CompanyImportServiceImpl implements CompanyImportService {
                     continue;
                 }
 
-                if (companyRepository.existsByIsinIgnoreCase(isin)) {
-                    continue;
-                }
-
-                Company company = new Company();
+                Company company = companyRepository.findByIsin(isin).orElseGet(Company::new);
 
                 company.setTicker(ticker);
                 company.setIsin(isin);
@@ -80,13 +76,11 @@ public class CompanyImportServiceImpl implements CompanyImportService {
                 company.setWebsite(GetString(row, columns.get("website")));
                 company.setHeadquarter(GetString(row, columns.get("headquarterscity")));
                 company.setIpoDate(ParseDate(row, columns.get("ipodate")));
-                company.setCreatedAt(LocalDateTime.now());
-                company.setUpdatedAt(LocalDateTime.now());
 
                 Company savedCompany = companyRepository.save(company);
 
-                ImportAliases(savedCompany, GetString(row, columns.get("aliases")));
-                ImportTradingViewMapping(savedCompany, GetString(row, columns.get("tradingviewsymbol")));
+                SyncAliases(savedCompany, GetString(row, columns.get("aliases")));
+                SyncTradingViewMapping(savedCompany, GetString(row, columns.get("tradingviewsymbol")));
             }
 
         } catch (Exception ex) {
@@ -94,7 +88,11 @@ public class CompanyImportServiceImpl implements CompanyImportService {
         }
     }
 
-    private void ImportAliases(Company company, String aliasesRaw) {
+    private void SyncAliases(Company company, String aliasesRaw) {
+        companyAliasRepository.deleteAllInBatch(
+                companyAliasRepository.findByCompanyId(company.getId())
+        );
+
         if (IsBlank(aliasesRaw)) {
             return;
         }
@@ -107,15 +105,6 @@ public class CompanyImportServiceImpl implements CompanyImportService {
             String alias = aliasRaw.trim();
 
             if (IsBlank(alias)) {
-                continue;
-            }
-
-            boolean exists = companyAliasRepository.existsByCompany_IdAndAliasIgnoreCase(
-                    company.getId(),
-                    alias
-            );
-
-            if (exists) {
                 continue;
             }
 
@@ -132,31 +121,24 @@ public class CompanyImportServiceImpl implements CompanyImportService {
         }
     }
 
-    private void ImportTradingViewMapping(Company company, String tradingViewSymbol) {
+    private void SyncTradingViewMapping(Company company, String tradingViewSymbol) {
         if (IsBlank(tradingViewSymbol)) {
             return;
         }
 
         String symbol = tradingViewSymbol.trim();
 
-        boolean exists = companyChartMappingRepository
-                .existsByCompany_IdAndProviderIgnoreCaseAndSymbolIgnoreCase(
-                        company.getId(),
-                        "TradingView",
-                        symbol
-                );
+        CompanyChartMapping mapping = companyChartMappingRepository.findByCompanyId(company.getId());
 
-        if (exists) {
-            return;
+        if (mapping == null) {
+            mapping = new CompanyChartMapping();
+            mapping.setCompany(company);
+            mapping.setProvider("TradingView");
+            mapping.setDefault(true);
+            mapping.setCreatedAt(LocalDateTime.now());
         }
 
-        CompanyChartMapping mapping = new CompanyChartMapping();
-
-        mapping.setCompany(company);
-        mapping.setProvider("TradingView");
         mapping.setSymbol(symbol);
-        mapping.setDefault(true);
-        mapping.setCreatedAt(LocalDateTime.now());
         mapping.setUpdatedAt(LocalDateTime.now());
 
         companyChartMappingRepository.save(mapping);
