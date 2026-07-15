@@ -1,19 +1,22 @@
 package StockNewsAgregator.ArticleService.service.MatchingArticleCompany;
 
-import StockNewsAgregator.ArticleService.dto.ArticleCompanyLinkDto;
-import StockNewsAgregator.ArticleService.dto.MatchingCompanyDto;
+import StockNewsAgregator.ArticleService.dto.*;
 import StockNewsAgregator.ArticleService.entity.Article;
+import StockNewsAgregator.ArticleService.entity.enums.MatchLevel;
 import StockNewsAgregator.ArticleService.entity.enums.MatchType;
 import StockNewsAgregator.ArticleService.entity.enums.ProcessingStatus;
 import StockNewsAgregator.ArticleService.mapper.ArticleCompanyLinkMapper;
 import StockNewsAgregator.ArticleService.repository.ArticleCompanyLinkRepository;
 import StockNewsAgregator.ArticleService.repository.ArticleRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
+
 @Service
 @AllArgsConstructor
 public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompanyService{
@@ -21,6 +24,7 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
     private final WebClient webClient;
     private final ArticleCompanyLinkRepository articleCompanyLinkRepository;
     @Override
+    @Transactional
     public void MatchArticleCompany() {
         List<Article> UnmatchedArticles = articleRepository.findByProcessingStatus(ProcessingStatus.FETCHED);
         if (UnmatchedArticles.isEmpty()) return;
@@ -33,125 +37,146 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
 
         for (Article article : UnmatchedArticles) {
             List<ArticleCompanyLinkDto> matchedCandidates = new LinkedList<>();
+            List<CompanyCandidateDto> cadidates = new LinkedList<>();
             for (MatchingCompanyDto company : matchingCompanyDtos) {
                 ArticleCompanyLinkDto articleCompanyLinkDto = MatchArticleToCompanies(company, article);
                 if (articleCompanyLinkDto != null) {
                     matchedCandidates.add(articleCompanyLinkDto);
-                }else {
-                    article.setProcessingStatus(ProcessingStatus.UNMATCHED);
+                    CompanyCandidateDto companyCandidateDto = new CompanyCandidateDto();
+                    companyCandidateDto.setCompanyId(company.getId());
+                    companyCandidateDto.setName(company.getName());
+                    companyCandidateDto.setShortName(company.getShortName());
+                    companyCandidateDto.setTicker(company.getTicker());
+                    companyCandidateDto.setIsin(company.getIsin());
+                    companyCandidateDto.setAliases(company.getAliases());
+                    companyCandidateDto.setMatchedPhrase(articleCompanyLinkDto.getMatchedPhrase());
+                    companyCandidateDto.setRuleScore(articleCompanyLinkDto.getMatchScore());
+                    cadidates.add(companyCandidateDto);
                 }
-
             }
+            if (matchedCandidates.isEmpty()){
+                article.setProcessingStatus(ProcessingStatus.UNMATCHED);
+                continue;
+            }
+            CompanyMatchingDto companyMatchingDto = new CompanyMatchingDto();
+            companyMatchingDto.setArticleId(article.getId());
+            companyMatchingDto.setTitle(article.getTitle());
+            companyMatchingDto.setSummary(article.getSummary());
+            companyMatchingDto.setContent(article.getContent());
+            companyMatchingDto.setCandidates(cadidates);
+            CompanyMatchingResponseDto matchingResponseDto = webClient.post()
+                    .uri("http://localhost:8004/api/v1/company-matching")
+                    .bodyValue(companyMatchingDto)
+                    .retrieve()
+                    .bodyToMono(CompanyMatchingResponseDto.class)
+                    .block();
+            if(matchingResponseDto.getResults().stream().count() == 0){
+                article.setProcessingStatus(ProcessingStatus.UNMATCHED);
+                continue;
+            }
+            for (MatchingResultDto resultDto : matchingResponseDto.getResults()) {
+                MatchLevel level = MatchLevel.valueOf(resultDto.getMatchLevel());
+                boolean acceptedTopic = level == MatchLevel.TOPIC && resultDto.getConfidence() >= 0.75;
+                boolean mention = level == MatchLevel.MENTION;
+                if (!acceptedTopic && !mention) continue;
+
+                matchedCandidates.stream()
+                        .filter(m -> m.getCompanyId().equals(resultDto.getCompanyId()))
+                        .findFirst()
+                        .ifPresent(link -> {
+                            link.setMatchLevel(level);
+                            articleCompanyLinkRepository.save(ArticleCompanyLinkMapper.mapToEntity(link));
+                            article.setProcessingStatus(ProcessingStatus.MATCHED);
+
+                        });
+            }
+            if (article.getProcessingStatus() != ProcessingStatus.MATCHED) article.setProcessingStatus(ProcessingStatus.UNMATCHED);
+           articleRepository.save(article);
         }
 
 
 
 
     }
-    private ArticleCompanyLinkDto MatchArticleToCompanies(
-            MatchingCompanyDto company,
-            Article article){
-        int score = 0;
-
-        String title = normalize(article.getTitle());
-        String summary = normalize(article.getSummary());
-        String content = normalize(article.getContent());
-
-        String isin = normalize(company.getIsin());
-        String ticker = normalize(company.getTicker());
-        String name = normalize(company.getName());
-        String shortName = normalize(company.getShortName());
-        ArticleCompanyLinkDto articleCompanyLinkDto = new ArticleCompanyLinkDto();
-        if (containsPhrase(title, isin) || containsPhrase(summary, isin) || containsPhrase(content, isin)) {
-            score += 150;
-            articleCompanyLinkDto.setMatchType(MatchType.ISIN);
-        }
-
-        if (containsPhrase(title, name)) {
-            score += 100;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.NAME);
-        }
-        if (containsPhrase(summary, name)) {
-            score += 60;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.NAME);
-        }
-        if (containsPhrase(content, name)) {
-            score += 30;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.NAME);
-        }
-
-        if (containsPhrase(title, shortName)) {
-            score += 70;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.SHORTNAME);
-        }
-        if (containsPhrase(summary, shortName)) {
-            score += 45;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.SHORTNAME);
-        }
-        if (containsPhrase(content, shortName)) {
-            score += 20;
-            if(articleCompanyLinkDto.getMatchType() == null)
-                articleCompanyLinkDto.setMatchType(MatchType.SHORTNAME);
-        }
-
-        if (company.getAliases() != null) {
-            for (String alias : company.getAliases()) {
-                String normalizedAlias = normalize(alias);
-                if (normalizedAlias.isBlank()|| normalizedAlias.length() <= 4) {
-                    continue;
-                }
-                if (containsPhrase(title, normalizedAlias)) {
-                    score += 80;
-                    if(articleCompanyLinkDto.getMatchType() == null)
-                        articleCompanyLinkDto.setMatchType(MatchType.ALIAS);
-                }
-                if (containsPhrase(summary, normalizedAlias)) {
-                    score += 50;
-                    if(articleCompanyLinkDto.getMatchType() == null)
-                        articleCompanyLinkDto.setMatchType(MatchType.ALIAS);
-                }
-                if (containsPhrase(content, normalizedAlias)) {
-                    score += 25;
-                    if(articleCompanyLinkDto.getMatchType() == null)
-                        articleCompanyLinkDto.setMatchType(MatchType.ALIAS);
-                }
-            }
-        }
-
-
-            if (score > 60) {
+    ArticleCompanyLinkDto MatchArticleToCompanies(MatchingCompanyDto company, Article article) {
+        String rawText = safe(article.getTitle())
+                +safe(article.getSummary())
+                +safe(article.getContent());
+        String articleFull = normalize(rawText);
+        if(containsTicker(rawText,company.getTicker())){
+            ArticleCompanyLinkDto articleCompanyLinkDto = new ArticleCompanyLinkDto();
             articleCompanyLinkDto.setArticleId(article.getId());
             articleCompanyLinkDto.setCompanyId(company.getId());
-            articleCompanyLinkDto.setMatchScore(score);
+            articleCompanyLinkDto.setMatchScore(100);
+            articleCompanyLinkDto.setMatchedPhrase(company.getTicker());
+            articleCompanyLinkDto.setMatchType(MatchType.TICKER);
             return articleCompanyLinkDto;
+        }
+        if(containsProperPhrase(articleFull,company.getName())){
+            ArticleCompanyLinkDto articleCompanyLinkDto = new ArticleCompanyLinkDto();
+            articleCompanyLinkDto.setArticleId(article.getId());
+            articleCompanyLinkDto.setCompanyId(company.getId());
+            articleCompanyLinkDto.setMatchScore(100);
+            articleCompanyLinkDto.setMatchedPhrase(company.getName());
+            articleCompanyLinkDto.setMatchType(MatchType.NAME);
+            return articleCompanyLinkDto;
+        }
+        if (containsPhrase(articleFull, company.getShortName())) {
+            ArticleCompanyLinkDto articleCompanyLinkDto = new ArticleCompanyLinkDto();
+            articleCompanyLinkDto.setArticleId(article.getId());
+            articleCompanyLinkDto.setCompanyId(company.getId());
+            articleCompanyLinkDto.setMatchScore(50);
+            articleCompanyLinkDto.setMatchedPhrase(company.getShortName());
+            articleCompanyLinkDto.setMatchType(MatchType.SHORTNAME);
+            return articleCompanyLinkDto;
+        }
+        for(String alias : company.getAliases()) {
+            if (containsPhrase(articleFull,normalize(alias))){
+                ArticleCompanyLinkDto articleCompanyLinkDto = new ArticleCompanyLinkDto();
+                articleCompanyLinkDto.setArticleId(article.getId());
+                articleCompanyLinkDto.setCompanyId(company.getId());
+                articleCompanyLinkDto.setMatchScore(10);
+                articleCompanyLinkDto.setMatchedPhrase(alias);
+                articleCompanyLinkDto.setMatchType(MatchType.ALIAS);
+                return articleCompanyLinkDto;
             }
-        return null;
+        }
 
-    }
+        return null;
+        }
+
+
     private String normalize(String value) {
         return value == null ? "" : value.toLowerCase();
     }
+    private String safe(String value){
+        return value == null ? "" : value;
+    }
 
     private boolean containsPhrase(String text, String phrase) {
-        return phrase != null
-                && !phrase.isBlank()
-                && text.contains(phrase.toLowerCase());
+        if (phrase == null || phrase.isBlank() || phrase.trim().length() < 4) {
+            return false;
+        }
+        return Pattern.compile("(?<!\\p{L})" + Pattern.quote(phrase.toLowerCase().trim()) + "(?!\\p{L})")
+                .matcher(text).find();
     }
 
     private boolean containsTicker(String text, String ticker) {
         if (ticker == null || ticker.isBlank()) {
             return false;
         }
-
-        if (ticker.length() <= 3) {
+        return Pattern.compile("(?<!\\p{L})" + Pattern.quote(ticker) + "(?!\\p{L})")
+                .matcher(text).find();
+    }
+    private boolean containsProperPhrase(String rawText, String phrase) {
+        if (phrase == null || phrase.isBlank() || phrase.trim().length() < 4) {
             return false;
         }
-
-        return containsPhrase(text, ticker);
+        String trimmed = phrase.trim();
+        String first = trimmed.substring(0, 1).toUpperCase();
+        String rest = trimmed.substring(1);
+        return Pattern.compile(
+                        "(?<!\\p{L})" + Pattern.quote(first) + "(?iu:" + Pattern.quote(rest) + ")(?!\\p{L})")
+                .matcher(rawText).find();
     }
 }
