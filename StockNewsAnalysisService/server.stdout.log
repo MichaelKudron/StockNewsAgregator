@@ -1,0 +1,5 @@
+INFO:     127.0.0.1:43654 - "GET /health/ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35769 - "POST /api/v1/company-matching HTTP/1.1" 200 OK
+INFO:     127.0.0.1:2437 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5307 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61830 - "GET /health/live HTTP/1.1" 200 OK
