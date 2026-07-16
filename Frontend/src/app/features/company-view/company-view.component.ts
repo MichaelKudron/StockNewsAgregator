@@ -14,6 +14,8 @@ import { RouterLink } from '@angular/router';
 import { switchMap, catchError, EMPTY } from 'rxjs';
 import { CompanyService } from '../../core/services/company.service';
 import { CompanyView } from '../../core/models/company.model';
+import { ArticleService } from '../../core/services/article.service';
+import { CompanyArticle, MatchLevel } from '../../core/models/article.model';
 
 @Component({
   selector: 'app-company-view',
@@ -28,10 +30,15 @@ export class CompanyViewComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private companyService = inject(CompanyService);
+  private articleService = inject(ArticleService);
 
   data = signal<CompanyView | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+
+  articles = signal<CompanyArticle[]>([]);
+  articlesLoading = signal(false);
+  articlesError = signal(false);
 
   private tvScript: HTMLScriptElement | null = null;
   private viewReady = false;
@@ -88,7 +95,45 @@ export class CompanyViewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading.set(false);
         this.dataReady = true;
         this.tryInitChart();
+        this.loadArticles(view.company.id);
       });
+  }
+
+  private loadArticles(companyId: string): void {
+    this.articlesLoading.set(true);
+    this.articlesError.set(false);
+    this.articles.set([]);
+    this.articleService.getCompanyArticles(companyId).subscribe({
+      next: list => {
+        this.articles.set(list);
+        this.articlesLoading.set(false);
+      },
+      error: () => {
+        this.articlesError.set(true);
+        this.articlesLoading.set(false);
+      },
+    });
+  }
+
+  openArticle(article: CompanyArticle): void {
+    this.router.navigate(['/article', article.articleId]);
+  }
+
+  sentimentLabel(references: string): string {
+    switch (references?.toLowerCase()) {
+      case 'positive': return 'Pozytywny';
+      case 'negative': return 'Negatywny';
+      case 'neutral':  return 'Neutralny';
+      default:         return references || '—';
+    }
+  }
+
+  matchLevelLabel(level: MatchLevel): string {
+    switch (level) {
+      case 'TOPIC':   return 'Temat artykułu';
+      case 'MENTION': return 'Wzmianka';
+      default:        return 'Brak';
+    }
   }
 
   ngAfterViewInit(): void {

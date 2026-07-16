@@ -26,6 +26,14 @@ export const routes: Routes = [
     title: 'Admin — GPW News',
   },
   {
+    path: 'article/:id',
+    loadComponent: () =>
+      import('./features/article-view/article-view.component').then(
+        m => m.ArticleViewComponent
+      ),
+    title: 'Artykuł — GPW News',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -1,6 +1,7 @@
 package stocknewsaggregator.articleservice.controller;
 
 import stocknewsaggregator.articleservice.dto.ArticleDto;
+import stocknewsaggregator.articleservice.dto.CompanyArticleDto;
 import stocknewsaggregator.articleservice.dto.FetchResponseDto;
 import stocknewsaggregator.articleservice.service.article.ArticleService;
 import stocknewsaggregator.articleservice.service.matching.MatchingArticleCompanyService;
@@ -22,7 +23,7 @@ public class ArticleController {
     private ArticleDownloadService articleDownloadService;
     private MatchingArticleCompanyService matchingArticleCompanyService;
     private ArticleService articleService;
-    @GetMapping("{hours}")
+    @GetMapping("/fetch/{hours}")
     public ResponseEntity<FetchResponseDto> fetchArticles(@PathVariable int hours) {
         FetchResponseDto fetchResponseDto = articleDownloadService.fetchArticles(hours);
         return ResponseEntity.ok(fetchResponseDto);
@@ -32,8 +33,12 @@ public class ArticleController {
         matchingArticleCompanyService.MatchArticleCompany();
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<ArticleDto> GetArticleById(@PathVariable UUID id) {
+        return ResponseEntity.ok(articleService.GetArticleById(id));
+    }
     @GetMapping("/company/{id}")
-    public ResponseEntity<List<ArticleDto>> GetArticlesByCompany(@PathVariable UUID id) {
+    public ResponseEntity<List<CompanyArticleDto>> GetArticlesByCompany(@PathVariable UUID id) {
         return ResponseEntity.ok(articleService.GetArticlesByCompanyId(id));
     }
 }
