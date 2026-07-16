@@ -1,0 +1,171 @@
+<div class="page">
+
+  <!-- Toast -->
+  @if (toast()) {
+    <div class="toast" [class.toast-ok]="toast()!.ok" [class.toast-err]="!toast()!.ok">
+      {{ toast()!.msg }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="state-center">
+      <div class="spinner"></div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="state-center">
+      <p class="state-text">{{ error() }}</p>
+    </div>
+  }
+
+  @if (!loading() && !error() && company) {
+
+    <!-- Page header -->
+    <header class="page-header">
+      <div class="page-header-left">
+        <button class="back-btn" (click)="back()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Wróć do spółki
+        </button>
+        <h1 class="page-title">
+          <span class="page-title-ticker">{{ company.ticker }}</span>
+          — Panel administracyjny
+        </h1>
+      </div>
+    </header>
+
+    <!-- ── Sekcja: Dane spółki ── -->
+    <section class="card">
+      <h2 class="card-title">Dane spółki</h2>
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="label">Ticker</label>
+          <input class="input" [(ngModel)]="companyDraft.ticker" />
+        </div>
+        <div class="field">
+          <label class="label">Krótka nazwa</label>
+          <input class="input" [(ngModel)]="companyDraft.shortName" />
+        </div>
+        <div class="field field--full">
+          <label class="label">Pełna nazwa</label>
+          <input class="input" [(ngModel)]="companyDraft.name" />
+        </div>
+        <div class="field">
+          <label class="label">ISIN</label>
+          <input class="input mono" [(ngModel)]="companyDraft.isin" />
+        </div>
+        <div class="field">
+          <label class="label">Rynek</label>
+          <input class="input" [(ngModel)]="companyDraft.market" />
+        </div>
+        <div class="field">
+          <label class="label">Sektor</label>
+          <input class="input" [(ngModel)]="companyDraft.sector" />
+        </div>
+        <div class="field">
+          <label class="label">Branża</label>
+          <input class="input" [(ngModel)]="companyDraft.industry" />
+        </div>
+        <div class="field">
+          <label class="label">Siedziba</label>
+          <input class="input" [(ngModel)]="companyDraft.headquarter" />
+        </div>
+        <div class="field">
+          <label class="label">Strona WWW</label>
+          <input class="input" type="url" [(ngModel)]="companyDraft.website" />
+        </div>
+        <div class="field">
+          <label class="label">Debiut GPW</label>
+          <input class="input" type="date" [(ngModel)]="companyDraft.ipoDate" />
+        </div>
+        <div class="field">
+          <label class="label">Status</label>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" [(ngModel)]="companyDraft.active" />
+              <span class="toggle-track"></span>
+            </label>
+            <span class="toggle-label">{{ companyDraft.active ? 'Notowana' : 'Wycofana' }}</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="card-footer">
+        <button class="btn-primary" [disabled]="saving()" (click)="saveCompany()">
+          {{ saving() ? 'Zapisuję…' : 'Zapisz dane spółki' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Sekcja: Wykres ── -->
+    @if (mapping) {
+      <section class="card">
+        <h2 class="card-title">Mapowanie wykresu</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label class="label">Provider</label>
+            <input class="input" [(ngModel)]="mappingDraft.provider" />
+          </div>
+          <div class="field">
+            <label class="label">Symbol</label>
+            <input class="input mono" [(ngModel)]="mappingDraft.symbol" placeholder="np. GPW:PKN" />
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn-primary" [disabled]="saving()" (click)="saveMapping()">
+            {{ saving() ? 'Zapisuję…' : 'Zapisz mapowanie' }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- ── Sekcja: Aliasy ── -->
+    <section class="card">
+      <div class="card-title-row">
+        <h2 class="card-title">Aliasy</h2>
+        <button class="btn-secondary" (click)="addingAlias = !addingAlias">
+          {{ addingAlias ? 'Anuluj' : '+ Dodaj alias' }}
+        </button>
+      </div>
+
+      <!-- Dodawanie nowego aliasu -->
+      @if (addingAlias) {
+        <div class="alias-add-row">
+          <input class="input" placeholder="Alias" [(ngModel)]="newAlias.alias" />
+          <input class="input input--narrow" type="number" placeholder="Priorytet" [(ngModel)]="newAlias.priority" />
+          <button class="btn-primary" (click)="addAlias()">Dodaj</button>
+        </div>
+      }
+
+      <!-- Lista aliasów -->
+      @if (aliases.length === 0) {
+        <p class="empty-text">Brak aliasów</p>
+      }
+      <div class="alias-list">
+        @for (row of aliases; track row.id) {
+          <div class="alias-row">
+            @if (row.editing) {
+              <input class="input alias-input" [(ngModel)]="row.draft.alias" />
+              <input class="input input--narrow" type="number" [(ngModel)]="row.draft.priority" />
+              <button class="btn-primary btn--sm" (click)="saveAlias(row)">Zapisz</button>
+              <button class="btn-ghost btn--sm" (click)="cancelEdit(row)">Anuluj</button>
+            } @else {
+              <span class="alias-name">{{ row.alias }}</span>
+              <span class="alias-priority">prio: {{ row.priority }}</span>
+              <button class="btn-ghost btn--sm" (click)="startEdit(row)">Edytuj</button>
+              <button class="btn-danger btn--sm" (click)="deleteAlias(row)">Usuń</button>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+  }
+</div>

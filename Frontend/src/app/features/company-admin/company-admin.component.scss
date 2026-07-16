@@ -1,0 +1,372 @@
+// ── Tokens ───────────────────────────────────────────────────────────────────
+$bg:           #0c0e14;
+$bg-card:      #111520;
+$bg-card-2:    #181c27;
+$border:       rgba(255,255,255,0.07);
+$border-hover: rgba(255,255,255,0.14);
+$text-1:       #edf0f8;
+$text-2:       #7f86a0;
+$text-3:       #454c63;
+$accent:       #4f8ef7;
+$accent-dim:   rgba(79,142,247,0.12);
+$accent-bdr:   rgba(79,142,247,0.28);
+$accent-hover: #6aa3f9;
+$green:        #27c27a;
+$green-dim:    rgba(39,194,122,0.12);
+$green-bdr:    rgba(39,194,122,0.3);
+$red:          #f05252;
+$red-dim:      rgba(240,82,82,0.12);
+$red-bdr:      rgba(240,82,82,0.3);
+$r:            10px;
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+.page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text-1;
+  font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  padding: 2rem 2rem 5rem;
+  max-width: 860px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+// ── Page header ──────────────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: $text-2;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  width: fit-content;
+
+  &:hover { color: $text-1; }
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-1;
+  letter-spacing: -0.02em;
+}
+
+.page-title-ticker {
+  font-family: 'IBM Plex Mono', monospace;
+  color: $accent;
+}
+
+// ── Card / Section ────────────────────────────────────────────────────────────
+.card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-title {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-1;
+  letter-spacing: -0.01em;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  .card-title { margin: 0; }
+}
+
+.card-footer {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// ── Form ─────────────────────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+
+  @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &--full { grid-column: 1 / -1; }
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: $text-3;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.input {
+  background: $bg-card-2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  color: $text-1;
+  font-size: 0.88rem;
+  font-family: inherit;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  width: 100%;
+
+  &::placeholder { color: $text-3; }
+  &:focus { border-color: $accent-bdr; }
+
+  &.mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: $accent;
+  }
+
+  &--narrow { max-width: 110px; }
+}
+
+// ── Toggle ────────────────────────────────────────────────────────────────────
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+
+  input { opacity: 0; width: 0; height: 0; }
+
+  &-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 11px;
+    background: $bg-card-2;
+    border: 1px solid $border;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: $text-3;
+      transition: transform 0.2s, background 0.2s;
+    }
+  }
+
+  input:checked + &-track {
+    background: $green-dim;
+    border-color: $green-bdr;
+    &::after { transform: translateX(16px); background: $green; }
+  }
+}
+
+.toggle-label {
+  font-size: 0.85rem;
+  color: $text-2;
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn-primary {
+  background: $accent;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+
+  &:hover { background: $accent-hover; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-secondary {
+  background: $bg-card-2;
+  color: $text-2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover { border-color: $border-hover; color: $text-1; }
+}
+
+.btn-ghost {
+  background: none;
+  color: $text-2;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: $text-1; border-color: $border-hover; }
+}
+
+.btn-danger {
+  background: $red-dim;
+  color: $red;
+  border: 1px solid $red-bdr;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(240,82,82,0.2); }
+}
+
+.btn--sm {
+  padding: 0.28rem 0.6rem;
+  font-size: 0.76rem;
+}
+
+// ── Aliases ───────────────────────────────────────────────────────────────────
+.alias-add-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  .input { flex: 1; min-width: 140px; }
+}
+
+.alias-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alias-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: $bg-card-2;
+  border: 1px solid $border;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.alias-input { flex: 1; min-width: 140px; }
+
+.alias-name {
+  flex: 1;
+  font-size: 0.88rem;
+  color: $text-1;
+}
+
+.alias-priority {
+  font-size: 0.75rem;
+  color: $text-3;
+  font-family: 'IBM Plex Mono', monospace;
+  margin-right: auto;
+}
+
+.empty-text {
+  font-size: 0.83rem;
+  color: $text-3;
+  margin: 0 0 0.5rem;
+}
+
+// ── States ────────────────────────────────────────────────────────────────────
+.state-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.state-text {
+  font-size: 0.88rem;
+  color: $text-2;
+}
+
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+
+  &-ok {
+    background: $green-dim;
+    color: $green;
+    border: 1px solid $green-bdr;
+  }
+
+  &-err {
+    background: $red-dim;
+    color: $red;
+    border: 1px solid $red-bdr;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

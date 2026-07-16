@@ -1,0 +1,291 @@
+// ── Tokens ──────────────────────────────────────────────────────────────────
+$bg:           #0c0e14;
+$bg-card:      #111520;
+$bg-card-2:    #181c27;
+$border:       rgba(255,255,255,0.07);
+$border-hover: rgba(255,255,255,0.13);
+$text-1:       #edf0f8;
+$text-2:       #7f86a0;
+$text-3:       #454c63;
+$accent:       #4f8ef7;
+$accent-dim:   rgba(79,142,247,0.12);
+$accent-bdr:   rgba(79,142,247,0.28);
+$green:        #27c27a;
+$green-dim:    rgba(39,194,122,0.1);
+$green-bdr:    rgba(39,194,122,0.25);
+$red:          #f05252;
+$red-dim:      rgba(240,82,82,0.1);
+$red-bdr:      rgba(240,82,82,0.25);
+$r:            10px;
+$r-lg:         14px;
+
+// ── Page ────────────────────────────────────────────────────────────────────
+.page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text-1;
+  font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  padding: 2rem 2rem 4rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  @media (max-width: 680px) {
+    padding: 1rem 1rem 3rem;
+  }
+}
+
+// ── States ───────────────────────────────────────────────────────────────────
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+}
+
+.state-text {
+  font-size: 0.88rem;
+  color: $text-2;
+  margin: 0;
+}
+
+.state-icon {
+  opacity: 0.7;
+}
+
+.error-icon {
+  color: $red;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid $border-hover;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: $text-2;
+  text-decoration: none;
+  margin-bottom: 1rem;
+  transition: color 0.15s;
+
+  &:hover { color: $text-1; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: flex-start;
+}
+
+.header-names {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ticker-main {
+  margin: 0;
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: $text-1;
+}
+
+.company-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: $text-2;
+  line-height: 1.3;
+}
+
+.aliases {
+  margin: 0;
+  font-size: 0.78rem;
+  color: $text-3;
+  font-style: italic;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.status-pill {
+  font-size: 0.76rem;
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 0.28rem 0.75rem;
+
+  &.active {
+    background: $green-dim;
+    color: $green;
+    border: 1px solid $green-bdr;
+  }
+
+  &.delisted {
+    background: $red-dim;
+    color: $red;
+    border: 1px solid $red-bdr;
+  }
+}
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: $accent;
+  background: $accent-dim;
+  border: 1px solid $accent-bdr;
+  border-radius: $r;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: rgba(79,142,247,0.2);
+    border-color: rgba(79,142,247,0.45);
+  }
+}
+
+.website-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  font-size: 0.8rem;
+  color: $text-2;
+  text-decoration: none;
+  border: 1px solid $border;
+  border-radius: $r;
+  padding: 0.28rem 0.7rem;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: $text-1;
+    border-color: $border-hover;
+  }
+}
+
+// ── Meta grid ────────────────────────────────────────────────────────────────
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: $border-hover;
+  }
+}
+
+.meta-label {
+  font-size: 0.7rem;
+  color: $text-3;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+}
+
+.meta-value {
+  font-size: 0.9rem;
+  color: $text-1;
+  font-weight: 500;
+
+  &.mono {
+    font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: $accent;
+  }
+}
+
+// ── Chart ────────────────────────────────────────────────────────────────────
+.chart-section {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+}
+
+.chart-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid $border;
+}
+
+.chart-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: $text-2;
+}
+
+.chart-symbol-badge {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.76rem;
+  color: $accent;
+  background: $accent-dim;
+  border: 1px solid $accent-bdr;
+  border-radius: 6px;
+  padding: 0.13rem 0.5rem;
+}
+
+.chart-body {
+  height: 560px;
+
+  @media (max-width: 680px) {
+    height: 360px;
+  }
+}
+
+.tv-container {
+  height: 100%;
+  width: 100%;
+}
