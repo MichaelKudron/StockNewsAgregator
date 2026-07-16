@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 interface CompanyArticleWire {
   article_id: string;
   article_title: string;
-  references: string;
+  sentiment: string;
   match_level: CompanyArticle['matchLevel'];
 }
 
@@ -42,7 +42,7 @@ export class ArticleService {
         list.map(a => ({
           articleId: a.article_id,
           articleTitle: a.article_title,
-          references: a.references,
+          sentiment: a.sentiment,
           matchLevel: a.match_level,
         }))
       )

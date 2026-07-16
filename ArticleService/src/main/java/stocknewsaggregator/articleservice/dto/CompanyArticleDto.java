@@ -15,6 +15,6 @@ import lombok.Setter;
 public class CompanyArticleDto {
     private String ArticleTitle;
     private UUID articleId;
-    private String references;
+    private String sentiment;
     private MatchLevel matchLevel;
 }

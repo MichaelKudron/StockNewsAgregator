@@ -29,7 +29,7 @@ public class ArticleServiceImpl implements ArticleService {
             CompanyArticleDto companyArticleDto = new CompanyArticleDto();
             companyArticleDto.setArticleId(article.getId());
             companyArticleDto.setArticleTitle(article.getTitle());
-            companyArticleDto.setReferences("neutral");
+            companyArticleDto.setSentiment("neutral");
             companyArticleDto.setMatchLevel(articleCompanyLink.getMatchLevel());
             companyArticleDtos.add(companyArticleDto);
         }

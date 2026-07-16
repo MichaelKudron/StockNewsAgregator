@@ -142,9 +142,9 @@
               </div>
               <div class="article-badges">
                 <span class="badge badge-sentiment"
-                      [class.positive]="article.references?.toLowerCase() === 'positive'"
-                      [class.negative]="article.references?.toLowerCase() === 'negative'">
-                  {{ sentimentLabel(article.references) }}
+                      [class.positive]="article.sentiment?.toLowerCase() === 'positive'"
+                      [class.negative]="article.sentiment?.toLowerCase() === 'negative'">
+                  {{ sentimentLabel(article.sentiment) }}
                 </span>
                 <span class="badge badge-match" [class.topic]="article.matchLevel === 'TOPIC'">
                   {{ matchLevelLabel(article.matchLevel) }}

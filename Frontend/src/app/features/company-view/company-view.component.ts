@@ -119,12 +119,12 @@ export class CompanyViewComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/article', article.articleId]);
   }
 
-  sentimentLabel(references: string): string {
-    switch (references?.toLowerCase()) {
+  sentimentLabel(sentiment: string): string {
+    switch (sentiment?.toLowerCase()) {
       case 'positive': return 'Pozytywny';
       case 'negative': return 'Negatywny';
       case 'neutral':  return 'Neutralny';
-      default:         return references || '—';
+      default:         return sentiment || '—';
     }
   }
 

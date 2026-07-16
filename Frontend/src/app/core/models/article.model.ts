@@ -5,7 +5,7 @@ export interface CompanyArticle {
   articleId: string;
   articleTitle: string;
   /** wynik analizy sentymentu, np. "neutral" */
-  references: string;
+  sentiment: string;
   matchLevel: MatchLevel;
 }
 
