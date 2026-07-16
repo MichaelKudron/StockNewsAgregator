@@ -1,0 +1,88 @@
+<div class="page">
+
+  <!-- ── Nagłówek ── -->
+  <header class="page-header">
+    <h1 class="page-title">Spółki GPW</h1>
+
+    <div class="controls">
+      <!-- Wyszukiwarka -->
+      <div class="search-wrap">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Szukaj po tickerze lub nazwie…"
+          [(ngModel)]="query"
+          (ngModelChange)="onQueryChange()"
+        />
+        @if (query) {
+          <button class="search-clear" (click)="query = ''; onQueryChange()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Sortowanie -->
+      <div class="sort-pills">
+        @for (opt of sortOptions; track $index) {
+          <button
+            class="sort-pill"
+            [class.active]="selectedSort === $index"
+            (click)="onSortChange($index)"
+          >{{ opt.label }}</button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Loading ── -->
+  @if (loading()) {
+    <div class="state-center">
+      <div class="spinner"></div>
+      <p class="state-text">Ładowanie spółek…</p>
+    </div>
+  }
+
+  <!-- ── Error ── -->
+  @if (error() && !loading()) {
+    <div class="state-center">
+      <p class="state-text error-text">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- ── Wyniki ── -->
+  @if (!loading() && !error()) {
+    @if (companies().length === 0) {
+      <div class="state-center">
+        <p class="state-text">Brak wyników dla „{{ query }}"</p>
+      </div>
+    } @else {
+      <p class="result-count">{{ companies().length }} spółek</p>
+      <div class="grid">
+        @for (item of companies(); track item.company.isin) {
+          <div class="card" (click)="goToCompany(item.company.isin)" role="button" tabindex="0"
+               (keydown.enter)="goToCompany(item.company.isin)">
+            <div class="card-header">
+              <span class="card-ticker">{{ item.company.ticker }}</span>
+              <span class="card-market">{{ item.company.market }}</span>
+            </div>
+            <p class="card-name">{{ item.company.name }}</p>
+            <div class="card-footer">
+              <span class="card-sector">{{ item.company.sector }}</span>
+              <span class="card-status" [class.active]="item.company.active" [class.delisted]="!item.company.active">
+                {{ item.company.active ? 'Notowana' : 'Wycofana' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>

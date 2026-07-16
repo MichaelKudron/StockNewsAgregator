@@ -1,0 +1,260 @@
+// ── Tokens ───────────────────────────────────────────────────────────────────
+$bg:           #0c0e14;
+$bg-card:      #111520;
+$bg-card-2:    #181c27;
+$border:       rgba(255,255,255,0.07);
+$border-hover: rgba(255,255,255,0.14);
+$text-1:       #edf0f8;
+$text-2:       #7f86a0;
+$text-3:       #454c63;
+$accent:       #4f8ef7;
+$accent-dim:   rgba(79,142,247,0.12);
+$accent-bdr:   rgba(79,142,247,0.28);
+$green:        #27c27a;
+$green-dim:    rgba(39,194,122,0.1);
+$green-bdr:    rgba(39,194,122,0.25);
+$red:          #f05252;
+$red-dim:      rgba(240,82,82,0.1);
+$red-bdr:      rgba(240,82,82,0.25);
+$r:            10px;
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+.page {
+  min-height: 100vh;
+  background: $bg;
+  color: $text-1;
+  font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  padding: 2rem 2rem 4rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+// ── Page header ──────────────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: $text-1;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+// ── Search ───────────────────────────────────────────────────────────────────
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: $text-3;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.search-input {
+  width: 100%;
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r;
+  color: $text-1;
+  font-size: 0.88rem;
+  padding: 0.55rem 2.2rem 0.55rem 2.4rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+
+  &::placeholder { color: $text-3; }
+  &:focus { border-color: $accent-bdr; }
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  color: $text-3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+
+  &:hover { color: $text-2; }
+}
+
+// ── Sort pills ───────────────────────────────────────────────────────────────
+.sort-pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sort-pill {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: 20px;
+  color: $text-2;
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+  &:hover { border-color: $border-hover; color: $text-1; }
+
+  &.active {
+    background: $accent-dim;
+    border-color: $accent-bdr;
+    color: $accent;
+  }
+}
+
+// ── States ───────────────────────────────────────────────────────────────────
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 1rem;
+}
+
+.state-text {
+  font-size: 0.88rem;
+  color: $text-2;
+  margin: 0;
+}
+
+.error-text { color: $red; }
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255,255,255,0.08);
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Result count ─────────────────────────────────────────────────────────────
+.result-count {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  color: $text-3;
+}
+
+// ── Grid ─────────────────────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+// ── Card ─────────────────────────────────────────────────────────────────────
+.card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+
+  &:hover {
+    border-color: $border-hover;
+    background: $bg-card-2;
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: translateY(0); }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-ticker {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $text-1;
+  letter-spacing: 0.04em;
+}
+
+.card-market {
+  font-size: 0.7rem;
+  color: $text-3;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.card-name {
+  margin: 0;
+  font-size: 0.82rem;
+  color: $text-2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.card-sector {
+  font-size: 0.75rem;
+  color: $text-3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-status {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+
+  &.active {
+    background: $green-dim;
+    color: $green;
+    border: 1px solid $green-bdr;
+  }
+
+  &.delisted {
+    background: $red-dim;
+    color: $red;
+    border: 1px solid $red-bdr;
+  }
+}
