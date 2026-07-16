@@ -1,6 +1,0 @@
-INFO:     Started server process [11592]
-INFO:     Waiting for application startup.
-2026-06-27 20:51:24,517 INFO app.main - Loading analysis models using backend=heuristic
-2026-06-27 20:51:24,519 INFO app.main - Analysis models are ready
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8004 (Press CTRL+C to quit)
