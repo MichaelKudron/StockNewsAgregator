@@ -4,15 +4,20 @@ import stocknewsaggregator.articleservice.service.download.ArticleDownloadServic
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import stocknewsaggregator.articleservice.service.matching.MatchingArticleCompanyService;
 
 @Service
 @AllArgsConstructor
 public class ArticleFetchScheduler {
     ArticleDownloadService articleDownloadService;
+    MatchingArticleCompanyService matchingArticleCompanyService;
     @Scheduled(fixedRate = 1000 * 60 * 60, initialDelay = 0)
     public void fetchArticles() {
         articleDownloadService.fetchArticles(1);
         System.out.println("Articles fetched");
+        matchingArticleCompanyService.MatchArticleCompany();
+        System.out.println("Companies matched");
+
 
     }
 }

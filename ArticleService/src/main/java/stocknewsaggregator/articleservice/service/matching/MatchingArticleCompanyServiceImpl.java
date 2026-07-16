@@ -12,7 +12,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,6 +36,8 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
                 .retrieve()
                 .bodyToFlux(MatchingCompanyDto.class)
                 .collectList()
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                        .filter(WebClientRequestException.class::isInstance))
                 .block();
 
         for (Article article : UnmatchedArticles) {
@@ -69,6 +74,8 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
                     .bodyValue(companyMatchingDto)
                     .retrieve()
                     .bodyToMono(CompanyMatchingResponseDto.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                            .filter(WebClientRequestException.class::isInstance))
                     .block();
             if(matchingResponseDto.getResults().stream().count() == 0){
                 article.setProcessingStatus(ProcessingStatus.UNMATCHED);

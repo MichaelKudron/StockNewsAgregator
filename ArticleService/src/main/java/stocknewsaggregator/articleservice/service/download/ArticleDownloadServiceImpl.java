@@ -9,7 +9,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.Map;
 
 @Service
@@ -25,6 +28,8 @@ public class ArticleDownloadServiceImpl implements ArticleDownloadService {
                 .bodyValue(Map.of("max_age_hours", hours))
                 .retrieve()
                 .bodyToMono(FetchResponseDto.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                        .filter(WebClientRequestException.class::isInstance))
                 .block();
         for(ArticleDto articleDto : fetchResponseDto.getArticles())
         {
