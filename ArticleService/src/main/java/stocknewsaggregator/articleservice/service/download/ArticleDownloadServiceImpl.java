@@ -1,9 +1,10 @@
 package stocknewsaggregator.articleservice.service.download;
 
-import stocknewsaggregator.articleservice.dto.ArticleDto;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleDto;
 import stocknewsaggregator.articleservice.dto.FetchResponseDto;
 import stocknewsaggregator.articleservice.entity.Article;
 import stocknewsaggregator.articleservice.mapper.ArticleMapper;
+import stocknewsaggregator.articleservice.config.ServiceUrls;
 import stocknewsaggregator.articleservice.repository.ArticleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -20,10 +21,11 @@ import java.util.Map;
 public class ArticleDownloadServiceImpl implements ArticleDownloadService {
     private final ArticleRepository articleRepository;
     private WebClient webClient;
+    private final ServiceUrls serviceUrls;
     @Override
     public FetchResponseDto fetchArticles(int hours) {
         FetchResponseDto fetchResponseDto = webClient.post()
-                .uri("http://127.0.0.1:8003/fetch")
+                .uri(serviceUrls.getNewsdownload() + "/fetch")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("max_age_hours", hours))
                 .retrieve()

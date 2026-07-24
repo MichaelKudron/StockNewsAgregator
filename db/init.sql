@@ -1,0 +1,2 @@
+CREATE DATABASE articles;
+CREATE DATABASE stocks;

@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Article, CompanyArticle } from '../models/article.model';
+import {
+  Article,
+  CompanyArticle,
+  NewsItem,
+  MarketMood,
+  TrendingCompany,
+} from '../models/article.model';
 import { environment } from '../../../environments/environment';
 
 /** ArticleService zwraca JSON w snake_case — mapujemy na camelCase */
@@ -10,6 +16,22 @@ interface CompanyArticleWire {
   article_title: string;
   sentiment: string;
   match_level: CompanyArticle['matchLevel'];
+}
+
+interface NewsItemWire {
+  id: string;
+  title: string;
+  source_code: string;
+  summary: string | null;
+  published_at: string | null;
+  sentiment: NewsItem['sentiment'];
+}
+
+interface TrendingWire {
+  name: string;
+  ticker: string;
+  isin: string;
+  article_count: number;
 }
 
 interface ArticleWire {
@@ -46,6 +68,37 @@ export class ArticleService {
           matchLevel: a.match_level,
         }))
       )
+    );
+  }
+
+  /** Ostatnie artykuły do listy newsów (GET /article/latest). */
+  getLatestArticles(): Observable<NewsItem[]> {
+    return this.http.get<NewsItemWire[]>(`${this.base}/latest`).pipe(
+      map(list => list.map(n => ({
+        id: n.id,
+        title: n.title,
+        sourceCode: n.source_code,
+        summary: n.summary,
+        publishedAt: n.published_at,
+        sentiment: n.sentiment,
+      })))
+    );
+  }
+
+  /** Bilans sentymentu ostatnich artykułów — kafelek „Nastrój rynku". */
+  getMarketMood(): Observable<MarketMood> {
+    return this.http.get<MarketMood>(`${this.base}/sentiment-summary`);
+  }
+
+  /** Najczęściej opisywane spółki (top 5 wg liczby artykułów). */
+  getTrendingCompanies(): Observable<TrendingCompany[]> {
+    return this.http.get<TrendingWire[]>(`${this.base}/trending-companies`).pipe(
+      map(list => list.map(c => ({
+        name: c.name,
+        ticker: c.ticker,
+        isin: c.isin,
+        articleCount: c.article_count,
+      })))
     );
   }
 

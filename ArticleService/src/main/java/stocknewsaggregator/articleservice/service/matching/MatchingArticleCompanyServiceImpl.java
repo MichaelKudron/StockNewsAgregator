@@ -1,6 +1,8 @@
 package stocknewsaggregator.articleservice.service.matching;
 
+import stocknewsaggregator.articleservice.config.ServiceUrls;
 import stocknewsaggregator.articleservice.dto.*;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleCompanyLinkDto;
 import stocknewsaggregator.articleservice.entity.Article;
 import stocknewsaggregator.articleservice.entity.enums.MatchLevel;
 import stocknewsaggregator.articleservice.entity.enums.MatchType;
@@ -26,13 +28,14 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
     private final ArticleRepository articleRepository;
     private final WebClient webClient;
     private final ArticleCompanyLinkRepository articleCompanyLinkRepository;
+    private final ServiceUrls serviceUrls;
     @Override
     @Transactional
     public void MatchArticleCompany() {
         List<Article> UnmatchedArticles = articleRepository.findByProcessingStatus(ProcessingStatus.FETCHED);
         if (UnmatchedArticles.isEmpty()) return;
         List<MatchingCompanyDto> matchingCompanyDtos = webClient.get()
-                .uri("http://localhost:8081/api/v1/company/matching")
+                .uri(serviceUrls.getCompany() + "/api/v1/company/matching")
                 .retrieve()
                 .bodyToFlux(MatchingCompanyDto.class)
                 .collectList()
@@ -70,7 +73,7 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
             companyMatchingDto.setContent(article.getContent());
             companyMatchingDto.setCandidates(cadidates);
             CompanyMatchingResponseDto matchingResponseDto = webClient.post()
-                    .uri("http://localhost:8004/api/v1/company-matching")
+                    .uri(serviceUrls.getAnalysis() + "/api/v1/company-matching")
                     .bodyValue(companyMatchingDto)
                     .retrieve()
                     .bodyToMono(CompanyMatchingResponseDto.class)

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -37,5 +38,9 @@ public class CompanyController {
     @GetMapping("/matching")
     public ResponseEntity<List<MatchingCompanyDto>> GetMatchingCompanies() {
         return ResponseEntity.ok(companyService.GetMatchingCompanies());
+    }
+    @GetMapping("/matching/{id}")
+    public ResponseEntity<MatchingCompanyDto> GetMatchingCompanies(@PathVariable UUID id) {
+        return ResponseEntity.ok(companyService.GetMatchingCompany(id.toString()));
     }
 }

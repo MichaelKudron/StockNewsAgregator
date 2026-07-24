@@ -1,15 +1,15 @@
 // ── Tokens ──────────────────────────────────────────────────────────────────
-$bg:           #0c0e14;
-$bg-card:      #111520;
-$bg-card-2:    #181c27;
+$bg:           #0a0a0c;
+$bg-card:      #141419;
+$bg-card-2:    #1c1c23;
 $border:       rgba(255,255,255,0.07);
 $border-hover: rgba(255,255,255,0.13);
 $text-1:       #edf0f8;
 $text-2:       #7f86a0;
 $text-3:       #454c63;
-$accent:       #4f8ef7;
-$accent-dim:   rgba(79,142,247,0.12);
-$accent-bdr:   rgba(79,142,247,0.28);
+$accent:       #f97316;
+$accent-dim:   rgba(249,115,22,0.12);
+$accent-bdr:   rgba(249,115,22,0.28);
 $green:        #27c27a;
 $green-dim:    rgba(39,194,122,0.1);
 $green-bdr:    rgba(39,194,122,0.25);
@@ -179,8 +179,8 @@ $r-lg:         14px;
   transition: background 0.15s, border-color 0.15s;
 
   &:hover {
-    background: rgba(79,142,247,0.2);
-    border-color: rgba(79,142,247,0.45);
+    background: rgba(249,115,22,0.2);
+    border-color: rgba(249,115,22,0.45);
   }
 }
 

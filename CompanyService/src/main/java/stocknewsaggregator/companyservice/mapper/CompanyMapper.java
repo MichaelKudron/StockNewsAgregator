@@ -36,6 +36,7 @@ public class CompanyMapper {
         matchingCompanyDto.setName(company.getName());
         matchingCompanyDto.setShortName(company.getShortName());
         matchingCompanyDto.setTicker(company.getTicker());
+        matchingCompanyDto.setIsin(company.getIsin());
         return matchingCompanyDto;
     }
 }

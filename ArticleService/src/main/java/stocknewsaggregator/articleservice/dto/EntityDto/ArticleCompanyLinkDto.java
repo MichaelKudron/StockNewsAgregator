@@ -1,9 +1,7 @@
-package stocknewsaggregator.articleservice.dto;
+package stocknewsaggregator.articleservice.dto.EntityDto;
 
 import stocknewsaggregator.articleservice.entity.enums.MatchLevel;
 import stocknewsaggregator.articleservice.entity.enums.MatchType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

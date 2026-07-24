@@ -1,8 +1,12 @@
 package stocknewsaggregator.articleservice.controller;
 
-import stocknewsaggregator.articleservice.dto.ArticleDto;
+import stocknewsaggregator.articleservice.dto.ArticleListItemDto;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleDto;
 import stocknewsaggregator.articleservice.dto.CompanyArticleDto;
 import stocknewsaggregator.articleservice.dto.FetchResponseDto;
+import stocknewsaggregator.articleservice.dto.SummaryDto;
+import stocknewsaggregator.articleservice.dto.TrendingCompanyDto;
+import stocknewsaggregator.articleservice.service.Analysis.ArticleAnaliseService;
 import stocknewsaggregator.articleservice.service.article.ArticleService;
 import stocknewsaggregator.articleservice.service.matching.MatchingArticleCompanyService;
 import stocknewsaggregator.articleservice.service.download.ArticleDownloadService;
@@ -23,6 +27,7 @@ public class ArticleController {
     private ArticleDownloadService articleDownloadService;
     private MatchingArticleCompanyService matchingArticleCompanyService;
     private ArticleService articleService;
+    private ArticleAnaliseService articleAnaliseService;
     @GetMapping("/fetch/{hours}")
     public ResponseEntity<FetchResponseDto> fetchArticles(@PathVariable int hours) {
         FetchResponseDto fetchResponseDto = articleDownloadService.fetchArticles(hours);
@@ -40,5 +45,22 @@ public class ArticleController {
     @GetMapping("/company/{id}")
     public ResponseEntity<List<CompanyArticleDto>> GetArticlesByCompany(@PathVariable UUID id) {
         return ResponseEntity.ok(articleService.GetArticlesByCompanyId(id));
+    }
+    @GetMapping("/analyse")
+    public ResponseEntity analyseArticles() {
+        articleAnaliseService.AnalyzeArticle();
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/sentiment-summary")
+    public ResponseEntity<SummaryDto> getSummary() {
+        return ResponseEntity.ok(articleService.GetSummary());
+    }
+    @GetMapping("/latest")
+    public ResponseEntity<List<ArticleListItemDto>> getLatest() {
+        return ResponseEntity.ok(articleService.GetLatest());
+    }
+    @GetMapping("/trending-companies")
+    public ResponseEntity<List<TrendingCompanyDto>> getTrendingCompanies() {
+        return ResponseEntity.ok(articleService.GetTrendingCompanies());
     }
 }

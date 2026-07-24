@@ -9,6 +9,34 @@ export interface CompanyArticle {
   matchLevel: MatchLevel;
 }
 
+export type ArticleSentiment = 'positive' | 'negative' | 'neutral' | null;
+
+/** Skrócony artykuł na listę newsów (GET /article/latest) */
+export interface NewsItem {
+  id: string;
+  title: string;
+  sourceCode: string;
+  summary: string | null;
+  publishedAt: string | null;
+  /** przeważający sentyment artykułu (z dominującego powiązania spółki) */
+  sentiment: ArticleSentiment;
+}
+
+/** Bilans sentymentu ostatnich artykułów (GET /article/sentiment-summary) */
+export interface MarketMood {
+  positive: number;
+  negative: number;
+  neutral: number;
+}
+
+/** Najczęściej opisywana spółka (GET /article/trending-companies) */
+export interface TrendingCompany {
+  name: string;
+  ticker: string;
+  isin: string;
+  articleCount: number;
+}
+
 /** Pełny artykuł (GET /article/{id}) */
 export interface Article {
   id: string;

@@ -1,0 +1,412 @@
+// ── Tokens ──
+$bg-card:      #141419;
+$bg-card-2:    #1c1c23;
+$border:       rgba(255,255,255,0.07);
+$border-hover: rgba(255,255,255,0.13);
+$text-1:       #edf0f8;
+$text-2:       #7f86a0;
+$text-3:       #454c63;
+$accent:       #f97316;
+$accent-dim:   rgba(249,115,22,0.12);
+$accent-bdr:   rgba(249,115,22,0.28);
+$green:        #27c27a;
+$green-dim:    rgba(39,194,122,0.1);
+$green-bdr:    rgba(39,194,122,0.28);
+$red:          #f05252;
+$red-dim:      rgba(240,82,82,0.1);
+$red-bdr:      rgba(240,82,82,0.28);
+$r:            10px;
+$r-lg:         14px;
+
+.ticker-strip {
+  border-bottom: 1px solid $border;
+  background: $bg-card;
+}
+
+.page {
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  @media (max-width: 680px) { padding: 1rem 1rem 3rem; }
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-1;
+}
+
+// ── Nastrój rynku ──
+.mood-card {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.mood-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.mood-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-1;
+}
+
+.mood-verdict {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $accent;
+}
+
+.mood-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: $bg-card-2;
+
+  .seg { height: 100%; transition: width 0.3s ease; }
+  .seg.pos { background: $green; }
+  .seg.neu { background: $text-3; }
+  .seg.neg { background: $red; }
+}
+
+.mood-legend {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.6rem;
+  font-size: 0.76rem;
+  flex-wrap: wrap;
+
+  .leg { display: inline-flex; align-items: center; gap: 0.35rem; color: $text-2; }
+  .leg::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
+  .leg.pos::before { background: $green; }
+  .leg.neu::before { background: $text-3; }
+  .leg.neg::before { background: $red; }
+}
+
+// ── Header ──
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.dash-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: $text-1;
+}
+
+.dash-sub {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+  color: $text-2;
+}
+
+.market-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 1rem;
+  border-radius: $r;
+  border: 1px solid $border;
+  background: $bg-card;
+
+  &.open { border-color: $green-bdr; }
+  &.closed { border-color: $border; }
+}
+
+.market-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  .open & {
+    background: $green;
+    box-shadow: 0 0 0 3px $green-dim;
+  }
+  .closed & {
+    background: $text-3;
+  }
+}
+
+.market-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.market-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $text-1;
+
+  .open & { color: $green; }
+}
+
+.market-detail {
+  font-size: 0.72rem;
+  color: $text-2;
+}
+
+// ── Chart ──
+.chart-section {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.chart-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid $border;
+}
+
+.index-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.index-tab {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: $text-2;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover { color: $text-1; background: $bg-card-2; }
+
+  &.active {
+    color: $accent;
+    background: $accent-dim;
+    border-color: $accent-bdr;
+  }
+}
+
+.chart-symbol-badge {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: $accent;
+  background: $accent-dim;
+  border: 1px solid $accent-bdr;
+  border-radius: 6px;
+  padding: 0.13rem 0.5rem;
+
+  @media (max-width: 520px) { display: none; }
+}
+
+.chart-body {
+  height: 480px;
+
+  @media (max-width: 680px) { height: 340px; }
+}
+
+// ── News: dobre / złe wieści ──
+.news-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.news-more {
+  font-size: 0.8rem;
+  color: $accent;
+
+  &:hover { text-decoration: underline; }
+}
+
+.news-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
+}
+
+.news-col {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+}
+
+.col-topbar {
+  padding: 0.7rem 1.2rem;
+  border-bottom: 1px solid $border;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  &.good { color: $green; background: $green-dim; }
+  &.bad  { color: $red;   background: $red-dim; }
+}
+
+.news-state {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.2rem;
+  font-size: 0.82rem;
+  color: $text-2;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid $border-hover;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.news-list { list-style: none; margin: 0; padding: 0; }
+
+.news-row + .news-row { border-top: 1px solid $border; }
+
+.news-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 1.2rem;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: $bg-card-2;
+    .news-title { color: $accent; }
+  }
+}
+
+.news-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text-1;
+  line-height: 1.35;
+  transition: color 0.12s ease;
+}
+
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.source-badge {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.68rem;
+  color: $accent;
+  background: $accent-dim;
+  border: 1px solid $accent-bdr;
+  border-radius: 6px;
+  padding: 0.1rem 0.45rem;
+}
+
+.news-date {
+  font-size: 0.72rem;
+  color: $text-3;
+  white-space: nowrap;
+}
+
+// ── Najczęściej opisywane spółki ──
+.trending-section {
+  background: $bg-card;
+  border: 1px solid $border;
+  border-radius: $r-lg;
+  overflow: hidden;
+}
+
+.trending-topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid $border;
+}
+
+.trending-sub {
+  font-size: 0.75rem;
+  color: $text-3;
+}
+
+.trending-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: rank;
+}
+
+.trending-row + .trending-row { border-top: 1px solid $border; }
+
+.trending-link {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 1.2rem;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: $bg-card-2;
+    .t-name { color: $accent; }
+  }
+}
+
+.rank {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: $text-3;
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.t-ticker {
+  font-family: 'IBM Plex Mono', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $accent;
+  min-width: 3.2rem;
+  flex-shrink: 0;
+}
+
+.t-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.88rem;
+  color: $text-1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s ease;
+}
+
+.t-count {
+  font-size: 0.76rem;
+  color: $text-2;
+  flex-shrink: 0;
+}
