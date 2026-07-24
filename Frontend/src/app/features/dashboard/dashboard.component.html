@@ -1,0 +1,142 @@
+<!-- Pasek notowań (indeksy GPW / blue chipy / PLN) -->
+<div class="ticker-strip">
+  <app-tv-widget [scriptSrc]="tickerTapeSrc" [config]="tickerTapeConfig" height="46px"></app-tv-widget>
+</div>
+
+<div class="page">
+
+  <!-- Nagłówek + status sesji -->
+  <header class="dash-header">
+    <div>
+      <h1 class="dash-title">Rynek w skrócie</h1>
+      <p class="dash-sub">Indeksy, notowania i najświeższe sygnały ze spółek GPW.</p>
+    </div>
+
+    <div class="market-pill" [class.open]="market().open" [class.closed]="!market().open">
+      <span class="market-dot"></span>
+      <div class="market-text">
+        <span class="market-label">Sesja {{ market().label }}</span>
+        <span class="market-detail">{{ market().detail }} · {{ market().warsawTime }} czasu w Warszawie</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nastrój rynku (bilans sentymentu) -->
+  @if (mood(); as m) {
+    <section class="mood-card">
+      <div class="mood-head">
+        <span class="mood-title">Nastrój rynku</span>
+        <span class="mood-verdict">{{ moodLabel() }}</span>
+      </div>
+      <div class="mood-bar">
+        <span class="seg pos" [style.width.%]="moodPct().positive"></span>
+        <span class="seg neu" [style.width.%]="moodPct().neutral"></span>
+        <span class="seg neg" [style.width.%]="moodPct().negative"></span>
+      </div>
+      <div class="mood-legend">
+        <span class="leg pos">{{ m.positive }} pozytywnych</span>
+        <span class="leg neu">{{ m.neutral }} neutralnych</span>
+        <span class="leg neg">{{ m.negative }} negatywnych</span>
+      </div>
+    </section>
+  }
+
+  <!-- Wykres indeksu -->
+  <section class="chart-section">
+    <div class="chart-topbar">
+      <div class="index-tabs">
+        @for (tab of indices; track tab.symbol) {
+          <button class="index-tab" [class.active]="tab.symbol === activeIndex().symbol"
+                  (click)="selectIndex(tab)">
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+      <span class="chart-symbol-badge">{{ activeIndex().symbol }}</span>
+    </div>
+    <div class="chart-body">
+      <app-tv-chart [symbol]="activeIndex().symbol"></app-tv-chart>
+    </div>
+  </section>
+
+  <!-- Newsy: dobre / złe wieści -->
+  <div class="news-head">
+    <span class="section-title">Wiadomości wg sentymentu</span>
+    <a class="news-more" routerLink="/news">Wszystkie newsy →</a>
+  </div>
+
+  @if (newsLoading()) {
+    <div class="news-state"><div class="spinner"></div><span>Ładowanie wiadomości…</span></div>
+  } @else {
+    <div class="news-columns">
+      <!-- Dobre wieści -->
+      <section class="news-col">
+        <div class="col-topbar good"><span>Dobre wieści</span></div>
+        @if (!goodNews().length) {
+          <div class="news-state"><span>Brak pozytywnych newsów.</span></div>
+        } @else {
+          <ul class="news-list">
+            @for (item of goodNews(); track item.id) {
+              <li class="news-row">
+                <a class="news-link" [routerLink]="['/article', item.id]">
+                  <span class="news-title">{{ item.title }}</span>
+                  <div class="news-meta">
+                    <span class="source-badge">{{ item.sourceCode }}</span>
+                    <span class="news-date">{{ item.publishedAt | date:'d MMM, HH:mm' }}</span>
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- Złe wieści -->
+      <section class="news-col">
+        <div class="col-topbar bad"><span>Złe wieści</span></div>
+        @if (!badNews().length) {
+          <div class="news-state"><span>Brak negatywnych newsów.</span></div>
+        } @else {
+          <ul class="news-list">
+            @for (item of badNews(); track item.id) {
+              <li class="news-row">
+                <a class="news-link" [routerLink]="['/article', item.id]">
+                  <span class="news-title">{{ item.title }}</span>
+                  <div class="news-meta">
+                    <span class="source-badge">{{ item.sourceCode }}</span>
+                    <span class="news-date">{{ item.publishedAt | date:'d MMM, HH:mm' }}</span>
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+
+  <!-- Najczęściej opisywane spółki -->
+  <section class="trending-section">
+    <div class="trending-topbar">
+      <span class="section-title">Najczęściej opisywane spółki</span>
+      <span class="trending-sub">o kim się mówi</span>
+    </div>
+    @if (!trending().length) {
+      <div class="news-state"><span>Brak danych.</span></div>
+    } @else {
+      <ol class="trending-list">
+        @for (c of trending(); track c.isin; let i = $index) {
+          <li class="trending-row">
+            <a class="trending-link" [routerLink]="['/company', c.isin]">
+              <span class="rank">{{ i + 1 }}</span>
+              <span class="t-ticker">{{ c.ticker }}</span>
+              <span class="t-name">{{ c.name }}</span>
+              <span class="t-count">{{ c.articleCount }} art.</span>
+            </a>
+          </li>
+        }
+      </ol>
+    }
+  </section>
+
+</div>

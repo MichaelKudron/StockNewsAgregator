@@ -1,0 +1,38 @@
+<div class="page">
+  <header class="head">
+    <h1 class="title">Wiadomości</h1>
+    <p class="sub">Najnowsze artykuły ze spółek notowanych na GPW.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="state-center">
+      <div class="spinner"></div>
+      <p class="state-text">Ładowanie wiadomości…</p>
+    </div>
+  } @else if (error()) {
+    <div class="state-center">
+      <p class="state-text">Nie udało się pobrać wiadomości.</p>
+    </div>
+  } @else if (!news().length) {
+    <div class="state-center">
+      <p class="state-text">Brak wiadomości.</p>
+    </div>
+  } @else {
+    <ul class="news-list">
+      @for (item of news(); track item.id) {
+        <li class="news-card">
+          <a class="news-link" [routerLink]="['/article', item.id]">
+            <div class="news-meta">
+              <span class="source-badge">{{ item.sourceCode }}</span>
+              <span class="news-date">{{ item.publishedAt | date:'d MMMM y, HH:mm' }}</span>
+            </div>
+            <h2 class="news-title">{{ item.title }}</h2>
+            @if (item.summary) {
+              <p class="news-summary">{{ item.summary }}</p>
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

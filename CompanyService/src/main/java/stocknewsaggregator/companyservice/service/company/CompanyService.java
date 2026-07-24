@@ -12,4 +12,5 @@ public interface CompanyService {
     CompanyDto UpdateCompany(CompanyDto companyDto);
     void DeleteCompany(String isin);
     List<MatchingCompanyDto> GetMatchingCompanies();
+    MatchingCompanyDto GetMatchingCompany(String isin);
 }

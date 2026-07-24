@@ -1,6 +1,6 @@
 package stocknewsaggregator.articleservice.mapper;
 
-import stocknewsaggregator.articleservice.dto.ArticleCompanyLinkDto;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleCompanyLinkDto;
 import stocknewsaggregator.articleservice.entity.ArticleCompanyLink;
 
 public class ArticleCompanyLinkMapper {
@@ -11,6 +11,7 @@ public class ArticleCompanyLinkMapper {
        articleCompanyLink.setMatchScore(dto.getMatchScore());
        articleCompanyLink.setMatchType(dto.getMatchType());
        articleCompanyLink.setMatchLevel(dto.getMatchLevel());
+       articleCompanyLink.setMatchedPhrase(dto.getMatchedPhrase());
        return articleCompanyLink;
     }
     public static ArticleCompanyLinkDto mapToDto(ArticleCompanyLink entity) {
@@ -20,6 +21,7 @@ public class ArticleCompanyLinkMapper {
         dto.setMatchScore(entity.getMatchScore());
         dto.setMatchType(entity.getMatchType());
         dto.setMatchLevel(entity.getMatchLevel());
+        dto.setMatchedPhrase(entity.getMatchedPhrase());
         return dto;
     }
 }

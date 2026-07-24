@@ -1,25 +1,20 @@
 package stocknewsaggregator.articleservice.dto;
 
 import stocknewsaggregator.articleservice.entity.enums.MatchLevel;
-import stocknewsaggregator.articleservice.entity.enums.MatchType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
-public class ArticleCompanyLinkDto {
-    private UUID companyId;
+public class CompanyArticleDto {
+    private String ArticleTitle;
     private UUID articleId;
-    private double matchScore;
-    private MatchType matchType;
+    private String sentiment;
     private MatchLevel matchLevel;
-    private String matchedPhrase;
 }

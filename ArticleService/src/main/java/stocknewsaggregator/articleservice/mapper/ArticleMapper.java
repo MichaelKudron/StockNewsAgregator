@@ -1,6 +1,6 @@
 package stocknewsaggregator.articleservice.mapper;
 
-import stocknewsaggregator.articleservice.dto.ArticleDto;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleDto;
 import stocknewsaggregator.articleservice.entity.Article;
 import stocknewsaggregator.articleservice.entity.enums.ProcessingStatus;
 

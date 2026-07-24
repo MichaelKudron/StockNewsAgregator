@@ -27,7 +27,7 @@
   @if (company && !loading()) {
     <!-- Header -->
     <header class="header">
-      <a class="back-home" routerLink="/">
+      <a class="back-home" routerLink="/spolki">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
@@ -109,6 +109,55 @@
       <div class="chart-body">
         <div #tvContainer class="tv-container"></div>
       </div>
+    </section>
+
+    <!-- Articles -->
+    <section class="articles-section">
+      <div class="articles-topbar">
+        <span class="articles-label">Powiązane artykuły</span>
+        @if (!articlesLoading()) {
+          <span class="articles-count">{{ articles().length }}</span>
+        }
+      </div>
+
+      @if (articlesLoading()) {
+        <div class="articles-state">
+          <div class="spinner spinner-sm"></div>
+          <span>Ładowanie artykułów…</span>
+        </div>
+      } @else if (articlesError()) {
+        <div class="articles-state">
+          <span>Nie udało się pobrać artykułów. Sprawdź, czy ArticleService działa.</span>
+        </div>
+      } @else if (!articles().length) {
+        <div class="articles-state">
+          <span>Brak artykułów powiązanych z tą spółką.</span>
+        </div>
+      } @else {
+        <ul class="article-list">
+          @for (article of articles(); track article.articleId) {
+            <li class="article-row" (click)="openArticle(article)">
+              <div class="article-title-wrap">
+                <span class="article-title">{{ article.articleTitle }}</span>
+              </div>
+              <div class="article-badges">
+                <span class="badge badge-sentiment"
+                      [class.positive]="article.sentiment?.toLowerCase() === 'positive'"
+                      [class.negative]="article.sentiment?.toLowerCase() === 'negative'">
+                  {{ sentimentLabel(article.sentiment) }}
+                </span>
+                <span class="badge badge-match" [class.topic]="article.matchLevel === 'TOPIC'">
+                  {{ matchLevelLabel(article.matchLevel) }}
+                </span>
+              </div>
+              <svg class="article-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </li>
+          }
+        </ul>
+      }
     </section>
   }
 

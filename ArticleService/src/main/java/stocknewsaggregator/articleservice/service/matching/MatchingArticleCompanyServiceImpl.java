@@ -1,6 +1,8 @@
 package stocknewsaggregator.articleservice.service.matching;
 
+import stocknewsaggregator.articleservice.config.ServiceUrls;
 import stocknewsaggregator.articleservice.dto.*;
+import stocknewsaggregator.articleservice.dto.EntityDto.ArticleCompanyLinkDto;
 import stocknewsaggregator.articleservice.entity.Article;
 import stocknewsaggregator.articleservice.entity.enums.MatchLevel;
 import stocknewsaggregator.articleservice.entity.enums.MatchType;
@@ -12,7 +14,10 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -23,16 +28,19 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
     private final ArticleRepository articleRepository;
     private final WebClient webClient;
     private final ArticleCompanyLinkRepository articleCompanyLinkRepository;
+    private final ServiceUrls serviceUrls;
     @Override
     @Transactional
     public void MatchArticleCompany() {
         List<Article> UnmatchedArticles = articleRepository.findByProcessingStatus(ProcessingStatus.FETCHED);
         if (UnmatchedArticles.isEmpty()) return;
         List<MatchingCompanyDto> matchingCompanyDtos = webClient.get()
-                .uri("http://localhost:8081/api/v1/company/matching")
+                .uri(serviceUrls.getCompany() + "/api/v1/company/matching")
                 .retrieve()
                 .bodyToFlux(MatchingCompanyDto.class)
                 .collectList()
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                        .filter(WebClientRequestException.class::isInstance))
                 .block();
 
         for (Article article : UnmatchedArticles) {
@@ -65,10 +73,12 @@ public class MatchingArticleCompanyServiceImpl implements MatchingArticleCompany
             companyMatchingDto.setContent(article.getContent());
             companyMatchingDto.setCandidates(cadidates);
             CompanyMatchingResponseDto matchingResponseDto = webClient.post()
-                    .uri("http://localhost:8004/api/v1/company-matching")
+                    .uri(serviceUrls.getAnalysis() + "/api/v1/company-matching")
                     .bodyValue(companyMatchingDto)
                     .retrieve()
                     .bodyToMono(CompanyMatchingResponseDto.class)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
+                            .filter(WebClientRequestException.class::isInstance))
                     .block();
             if(matchingResponseDto.getResults().stream().count() == 0){
                 article.setProcessingStatus(ProcessingStatus.UNMATCHED);

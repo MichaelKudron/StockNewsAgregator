@@ -1,0 +1,82 @@
+<div class="page">
+
+  <!-- ── Loading ── -->
+  @if (loading()) {
+    <div class="state-center">
+      <div class="spinner"></div>
+      <p class="state-text">Ładowanie artykułu…</p>
+    </div>
+  }
+
+  <!-- ── Error ── -->
+  @if (error() && !loading()) {
+    <div class="state-center">
+      <div class="state-icon error-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="state-text">{{ error() }}</p>
+      <button class="back-btn" (click)="goBack()">Wróć</button>
+    </div>
+  }
+
+  <!-- ── Content ── -->
+  @if (article(); as a) {
+    <button class="back-home" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Wróć
+    </button>
+
+    <article class="article-card">
+      <header class="article-header">
+        <div class="meta-row">
+          <span class="source-badge">{{ a.sourceCode }}</span>
+          @if (a.category) {
+            <span class="meta-item">{{ a.category }}</span>
+          }
+          <span class="meta-item">{{ publishedFormatted }}</span>
+          @if (a.author) {
+            <span class="meta-item">{{ a.author }}</span>
+          }
+        </div>
+        <h1 class="article-heading">{{ a.title }}</h1>
+      </header>
+
+      @if (a.summary && !isSummaryOnly) {
+        <p class="article-lead">{{ a.summary }}</p>
+      }
+
+      <div class="article-body">
+        @for (paragraph of bodyParagraphs; track $index) {
+          <p>{{ paragraph }}</p>
+        }
+      </div>
+
+      @if (isSummaryOnly) {
+        <p class="content-note">
+          Pełna treść nie jest dostępna w serwisie — powyżej streszczenie.
+        </p>
+      }
+
+      <footer class="article-footer">
+        <a class="source-link" [href]="a.url" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Czytaj w źródle
+        </a>
+      </footer>
+    </article>
+  }
+
+</div>

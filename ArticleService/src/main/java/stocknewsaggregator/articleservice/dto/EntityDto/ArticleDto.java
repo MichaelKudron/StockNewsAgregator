@@ -1,4 +1,4 @@
-package stocknewsaggregator.articleservice.dto;
+package stocknewsaggregator.articleservice.dto.EntityDto;
 
 import stocknewsaggregator.articleservice.entity.enums.ContentSource;
 import stocknewsaggregator.articleservice.entity.enums.ProcessingStatus;

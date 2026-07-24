@@ -4,10 +4,26 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        m => m.DashboardComponent
+      ),
+    title: 'Pulpit — SignalHub',
+  },
+  {
+    path: 'spolki',
+    loadComponent: () =>
       import('./features/company-list/company-list.component').then(
         m => m.CompanyListComponent
       ),
     title: 'Spółki GPW',
+  },
+  {
+    path: 'news',
+    loadComponent: () =>
+      import('./features/news-list/news-list.component').then(
+        m => m.NewsListComponent
+      ),
+    title: 'Newsy — SignalHub',
   },
   {
     path: 'company/:isin',
@@ -15,7 +31,7 @@ export const routes: Routes = [
       import('./features/company-view/company-view.component').then(
         m => m.CompanyViewComponent
       ),
-    title: 'Spółka — GPW News',
+    title: 'Spółka — SignalHub',
   },
   {
     path: 'company/:isin/admin',
@@ -23,7 +39,15 @@ export const routes: Routes = [
       import('./features/company-admin/company-admin.component').then(
         m => m.CompanyAdminComponent
       ),
-    title: 'Admin — GPW News',
+    title: 'Admin — SignalHub',
+  },
+  {
+    path: 'article/:id',
+    loadComponent: () =>
+      import('./features/article-view/article-view.component').then(
+        m => m.ArticleViewComponent
+      ),
+    title: 'Artykuł — SignalHub',
   },
   {
     path: '**',

@@ -81,6 +81,24 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.81.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.81.1</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.81.1</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
