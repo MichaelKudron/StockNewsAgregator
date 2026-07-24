@@ -1,72 +1,91 @@
-# Stock News Aggregator
+# SignalHub
 
-A microservice-based aggregator of Polish stock market (GPW) news. It downloads
-articles from financial news sources, matches them to listed companies, scores
-their sentiment with an NLP model and presents everything in a web UI.
+Microserwisowy agregator newsów z warszawskiej giełdy (GPW). Pobiera artykuły
+z serwisów finansowych, dopasowuje je do notowanych spółek, ocenia **sentyment
+per spółka** modelem NLP i prezentuje całość w webowym pulpicie: indeksy,
+nastrój rynku, newsy z podziałem na dobre/złe wieści i najczęściej opisywane
+spółki.
 
-## Architecture
+> Projekt portfolio — architektura mikroserwisowa (Spring Boot + FastAPI),
+> API Gateway, konteneryzacja i analiza sentymentu oparta na zero-shot NLI.
+
+## Architektura
 
 ```mermaid
 flowchart LR
-    FE[Frontend<br/>Angular · :4200] --> CS[CompanyService<br/>Spring Boot · :8081]
-    FE -.-> AS[ArticleService<br/>Spring Boot · :8080]
+    FE[Frontend<br/>Angular · :4200] --> GW[API Gateway<br/>Spring Cloud · :8080]
+    GW --> AS[ArticleService<br/>Spring Boot]
+    GW --> CS[CompanyService<br/>Spring Boot]
     AS --> ND[NewsDownloadService<br/>FastAPI · :8003]
-    AS --> AN[StockNewsAnalysisService<br/>FastAPI · :8004]
+    AS --> AN[AnalysisService<br/>FastAPI · :8004]
     AS --> CS
     AS --> DB[(PostgreSQL<br/>articles)]
     CS --> DB2[(PostgreSQL<br/>stocks)]
 ```
 
-| Service | Tech | Port | Responsibility |
+Gateway jest jedynym publicznym wjazdem — routuje po ścieżce
+(`/api/v1/article/**` → ArticleService, `/api/v1/company*/**` → CompanyService).
+Serwisy Java nie są wystawione bezpośrednio.
+
+| Serwis | Technologia | Port | Rola |
 |---|---|---|---|
-| [Frontend](Frontend/) | Angular 18 | 4200 | Company browser, search, admin panel, TradingView charts |
-| [ArticleService](ArticleService/) | Java 17, Spring Boot | 8080 | Orchestrates article download, company matching and persistence |
-| [CompanyService](CompanyService/) | Java 17, Spring Boot | 8081 | GPW company catalog, aliases, chart symbol mappings, import |
-| [NewsDownloadService](NewsDownloadService/) | Python, FastAPI | 8003 | Stateless fetcher: RSS + full-text extraction with paywall detection |
-| [StockNewsAnalysisService](StockNewsAnalysisService/) | Python, FastAPI | 8004 | NLP: article-to-company matching and sentiment scoring |
+| [Frontend](Frontend/) | Angular 18 | 4200 | Pulpit, przeglądarka spółek, widok artykułu |
+| [Gateway](Gateway/) | Spring Cloud Gateway | 8080 | Jedyny publiczny wjazd, routing, CORS |
+| [ArticleService](ArticleService/) | Java 25, Spring Boot | wewn. | Orkiestracja: pobieranie, matching, sentyment, persystencja |
+| [CompanyService](CompanyService/) | Java 25, Spring Boot | wewn. | Katalog spółek GPW, aliasy, mapowania wykresów, import |
+| [NewsDownloadService](NewsDownloadService/) | Python, FastAPI | 8003 | Bezstanowy fetcher: RSS + ekstrakcja treści, detekcja paywalla |
+| [StockNewsAnalysisService](StockNewsAnalysisService/) | Python, FastAPI | 8004 | NLP: dopasowanie artykuł–spółka i ocena sentymentu (mDeBERTa, zero-shot) |
 
-## Prerequisites
+## Uruchomienie (Docker — zalecane)
 
-- Java 17+, Node.js 18+, Python 3.12+
-- PostgreSQL running on `localhost:5432` with databases `articles` and `stocks`
-- Python virtualenvs: in each Python service run
-  `python -m venv .venv && .venv\Scripts\pip install -r requirements.txt`
-  (NewsDownloadService) or `.venv\Scripts\pip install -e .` (StockNewsAnalysisService)
-- Frontend dependencies: `npm install` inside `Frontend/`
+Wymaga tylko **Dockera**. Jedno polecenie stawia cały stack (7 kontenerów
++ Postgres z bazami `articles` i `stocks`):
 
-## Running
-
-Start each service in its own terminal (order matters — ArticleService calls
-the Python services on startup):
-
-```powershell
-# 1. NewsDownloadService (port 8003)
-cd NewsDownloadService
-.venv\Scripts\python main.py
-
-# 2. StockNewsAnalysisService (port 8004)
-cd StockNewsAnalysisService
-.venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8004
-
-# 3. CompanyService (port 8081)
-cd CompanyService
-.\mvnw.cmd spring-boot:run
-
-# 4. ArticleService (port 8080)
-cd ArticleService
-.\mvnw.cmd spring-boot:run
-
-# 5. Frontend (port 4200)
-cd Frontend
-npm start
+```bash
+docker compose up --build
 ```
 
-Then open **http://localhost:4200**.
+Potem otwórz **http://localhost:4200**.
 
-Useful endpoints:
+> **Pierwszy build jest wolny** — serwis analizy pobiera bibliotekę torch
+> i model NLP (~kilkaset MB). Kolejne uruchomienia są szybkie (cache + wolumen
+> na model).
 
-- `http://localhost:8003/docs`, `http://localhost:8004/docs` — FastAPI Swagger UIs
-- `http://localhost:8080/actuator/health`, `http://localhost:8081/actuator/health` — Spring health checks
+Świeży start = pusta baza. Żeby zobaczyć dane:
 
-The Python services also ship `Dockerfile`s and can be built with
-`docker build` individually.
+```bash
+# import katalogu spółek GPW (endpoint importu w CompanyService)
+# a następnie pobranie i analiza artykułów:
+curl http://localhost:8080/api/v1/article/fetch/48
+curl http://localhost:8080/api/v1/article/match
+curl http://localhost:8080/api/v1/article/analyse
+```
+
+Scheduler ArticleService i tak robi ten cykl automatycznie co godzinę.
+
+## Uruchomienie lokalne (bez Dockera, dev)
+
+Wymaga Java 25, Node 18+, Python 3.12+ i Postgresa na `localhost:5432`
+(bazy `articles`, `stocks`). Każdy serwis w osobnym terminalu — Python-y
+najpierw, bo ArticleService woła je na starcie:
+
+```powershell
+cd NewsDownloadService;       .venv\Scripts\python main.py
+cd StockNewsAnalysisService;  .venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8004
+cd CompanyService;            .\mvnw.cmd spring-boot:run
+cd ArticleService;            .\mvnw.cmd spring-boot:run
+cd Frontend;                  npm start
+```
+
+W trybie dev front (`ng serve`) woła serwisy bezpośrednio (8080/8081),
+z pominięciem gatewaya. Wersja produkcyjna/Docker idzie przez gateway.
+
+## Przydatne adresy
+
+- `http://localhost:8003/docs`, `http://localhost:8004/docs` — Swagger UI (FastAPI)
+- `http://localhost:8080/actuator/health` — health gatewaya
+
+## Stack
+
+Angular · Spring Boot · Spring Cloud Gateway · FastAPI · PostgreSQL ·
+Docker Compose · Hugging Face Transformers (mDeBERTa, zero-shot NLI)
