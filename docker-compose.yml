@@ -2,88 +2,157 @@ services:
   postgres:
     image: postgres:18
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
     volumes:
       - pgdata:/var/lib/postgresql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
     expose:
       - "5432"
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
 
+
   newsdownload:
-    image: ghcr.io/michaelkudron/stocknewsagregator-newsdownload:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-newsdownload:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     expose:
       - "8003"
 
+
   analysis:
-    image: ghcr.io/michaelkudron/stocknewsagregator-analysis:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-analysis:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     expose:
       - "8004"
+
     volumes:
       - hfcache:/root/.cache/huggingface
 
+
   companyservice:
-    image: ghcr.io/michaelkudron/stocknewsagregator-companyservice:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-companyservice:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stocks
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
     expose:
       - "8081"
+
     depends_on:
       postgres:
         condition: service_healthy
 
+
   articleservice:
-    image: ghcr.io/michaelkudron/stocknewsagregator-articleservice:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-articleservice:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/articles
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
       SERVICES_COMPANY: http://companyservice:8081
       SERVICES_ANALYSIS: http://analysis:8004
       SERVICES_NEWSDOWNLOAD: http://newsdownload:8003
+
     expose:
       - "8080"
+
     depends_on:
       postgres:
         condition: service_healthy
+
       companyservice:
         condition: service_started
+
       analysis:
         condition: service_started
+
       newsdownload:
         condition: service_started
 
+
   gateway:
-    image: ghcr.io/michaelkudron/stocknewsagregator-gateway:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-gateway:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     environment:
       GATEWAY_ARTICLE_URI: http://articleservice:8080
       GATEWAY_COMPANY_URI: http://companyservice:8081
+
     expose:
       - "8080"
+
     depends_on:
-      - articleservice
-      - companyservice
+      articleservice:
+        condition: service_started
+
+      companyservice:
+        condition: service_started
+
 
   frontend:
-    image: ghcr.io/michaelkudron/stocknewsagregator-frontend:${APP_VERSION}
+    image: ghcr.io/michaelkudron/stocknewsagregator-frontend:latest
     restart: unless-stopped
+
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
     ports:
       - "127.0.0.1:4200:80"
+
     depends_on:
-      - gateway
+      gateway:
+        condition: service_started
+
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: signalhub-watchtower
+    restart: unless-stopped
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/msks/.docker/config.json:/config.json:ro
+
+    environment:
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_POLL_INTERVAL: "60"
+      WATCHTOWER_CLEANUP: "true"
+
+    command:
+      - --label-enable
+
 
 volumes:
   pgdata:
