@@ -3,7 +3,7 @@ services:
     image: postgres:18
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -32,7 +32,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stocks
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     expose:
       - "8081"
     depends_on:
@@ -44,7 +44,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/articles
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SERVICES_COMPANY: http://companyservice:8081
       SERVICES_ANALYSIS: http://analysis:8004
       SERVICES_NEWSDOWNLOAD: http://newsdownload:8003
