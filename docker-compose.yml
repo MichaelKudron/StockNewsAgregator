@@ -7,8 +7,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -17,13 +17,13 @@ services:
 
   newsdownload:
     build: ./NewsDownloadService
-    ports:
-      - "8003:8003"
+    expose:
+      - "8003"
 
   analysis:
     build: ./StockNewsAnalysisService
-    ports:
-      - "8004:8004"
+    expose:
+      - "8004"
     volumes:
       - hfcache:/root/.cache/huggingface   # cache modelu między restartami
 
@@ -65,8 +65,8 @@ services:
     environment:
       GATEWAY_ARTICLE_URI: http://articleservice:8080
       GATEWAY_COMPANY_URI: http://companyservice:8081
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     depends_on:
       - articleservice
       - companyservice
