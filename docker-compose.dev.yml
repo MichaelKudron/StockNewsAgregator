@@ -1,0 +1,18 @@
+# Nakładka DEV — publikuje porty backendów na hosta do debugowania.
+# NIE ładuje się automatycznie (celowo — inaczej serwer też by je odsłaniał).
+#
+# Lokalnie:  docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Serwer:    docker compose up          (sam base = tylko frontend publiczny)
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+  newsdownload:
+    ports:
+      - "8003:8003"
+  analysis:
+    ports:
+      - "8004:8004"
+  gateway:
+    ports:
+      - "8080:8080"
