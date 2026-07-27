@@ -1,7 +1,7 @@
 services:
   postgres:
-    restart: unless-stopped
     image: postgres:18
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -17,22 +17,22 @@ services:
       retries: 10
 
   newsdownload:
+    image: ghcr.io/michaelkudron/stocknewsagregator-newsdownload:${APP_VERSION}
     restart: unless-stopped
-    build: ./NewsDownloadService
     expose:
       - "8003"
 
   analysis:
+    image: ghcr.io/michaelkudron/stocknewsagregator-analysis:${APP_VERSION}
     restart: unless-stopped
-    build: ./StockNewsAnalysisService
     expose:
       - "8004"
     volumes:
-      - hfcache:/root/.cache/huggingface   # cache modelu między restartami
+      - hfcache:/root/.cache/huggingface
 
   companyservice:
+    image: ghcr.io/michaelkudron/stocknewsagregator-companyservice:${APP_VERSION}
     restart: unless-stopped
-    build: ./CompanyService
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/stocks
       SPRING_DATASOURCE_USERNAME: postgres
@@ -44,8 +44,8 @@ services:
         condition: service_healthy
 
   articleservice:
+    image: ghcr.io/michaelkudron/stocknewsagregator-articleservice:${APP_VERSION}
     restart: unless-stopped
-    build: ./ArticleService
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/articles
       SPRING_DATASOURCE_USERNAME: postgres
@@ -66,8 +66,8 @@ services:
         condition: service_started
 
   gateway:
+    image: ghcr.io/michaelkudron/stocknewsagregator-gateway:${APP_VERSION}
     restart: unless-stopped
-    build: ./Gateway
     environment:
       GATEWAY_ARTICLE_URI: http://articleservice:8080
       GATEWAY_COMPANY_URI: http://companyservice:8081
@@ -78,8 +78,8 @@ services:
       - companyservice
 
   frontend:
+    image: ghcr.io/michaelkudron/stocknewsagregator-frontend:${APP_VERSION}
     restart: unless-stopped
-    build: ./Frontend
     ports:
       - "127.0.0.1:4200:80"
     depends_on:
