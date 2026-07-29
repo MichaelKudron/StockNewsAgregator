@@ -50,6 +50,14 @@ export const routes: Routes = [
     title: 'Artykuł — SignalHub',
   },
   {
+    path: 'import',
+    loadComponent: () =>
+      import('./features/import/import.component').then(
+        m => m.ImportComponent
+      ),
+    title: 'Import — SignalHub',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

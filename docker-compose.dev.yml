@@ -13,6 +13,9 @@ services:
   analysis:
     ports:
       - "8004:8004"
+  companyservice:
+    ports:
+      - "8081:8081"
   gateway:
     ports:
       - "8080:8080"

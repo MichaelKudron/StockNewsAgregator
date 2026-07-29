@@ -32,4 +32,13 @@ export class AdminService {
   updateChartMapping(mapping: CompanyChartMapping): Observable<CompanyChartMapping> {
     return this.http.put<CompanyChartMapping>(`${API}/api/v1/company-chart-mapping`, mapping);
   }
+
+  // ── Import ───────────────────────────────────────────────────────────────
+  /** Import katalogu spółek z pliku .xlsx (arkusz "companies"). */
+  importCompanies(file: File): Observable<void> {
+    const form = new FormData();
+    form.append('file', file);
+    // Content-Type ustawia przeglądarka (multipart boundary) — nie ustawiamy ręcznie.
+    return this.http.post<void>(`${API}/api/v1/import/companies`, form);
+  }
 }

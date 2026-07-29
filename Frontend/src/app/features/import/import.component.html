@@ -1,0 +1,39 @@
+<div class="page">
+  <header class="head">
+    <h1 class="title">Import spółek</h1>
+    <p class="sub">Wgraj katalog spółek GPW z pliku Excel (.xlsx, arkusz „companies").</p>
+  </header>
+
+  <section class="card">
+    <label class="file-drop" [class.has-file]="file()">
+      <input type="file" accept=".xlsx,.xls" (change)="onFile($event)" hidden />
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      @if (file()) {
+        <span class="file-name">{{ file()!.name }}</span>
+        <span class="file-hint">kliknij, aby zmienić</span>
+      } @else {
+        <span class="file-name">Wybierz plik .xlsx</span>
+        <span class="file-hint">arkusz „companies"</span>
+      }
+    </label>
+
+    <button class="btn" [disabled]="!file() || status() === 'uploading'" (click)="upload()">
+      @if (status() === 'uploading') {
+        <span class="spinner"></span> Importowanie…
+      } @else {
+        Importuj
+      }
+    </button>
+
+    @if (status() === 'success') {
+      <p class="msg ok">{{ message() }}</p>
+    } @else if (status() === 'error') {
+      <p class="msg err">{{ message() }}</p>
+    }
+  </section>
+</div>
