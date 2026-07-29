@@ -6,7 +6,7 @@
 services:
   postgres:
     ports:
-      - "5432:5432"
+      - "5433:5432"   # dockerowa baza na 5433 (5432 zostaje dla natywnego Postgresa)
   newsdownload:
     ports:
       - "8003:8003"
