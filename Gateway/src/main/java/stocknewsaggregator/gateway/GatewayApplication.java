@@ -10,6 +10,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @SpringBootApplication
 public class GatewayApplication {
 
@@ -17,43 +19,64 @@ public class GatewayApplication {
         SpringApplication.run(GatewayApplication.class, args);
     }
 
-    // Adresy backendów — domyślnie localhost, w Dockerze nadpisywane env.
     @Value("${gateway.article-uri:http://localhost:8080}")
     private String articleUri;
+
     @Value("${gateway.company-uri:http://localhost:8081}")
     private String companyUri;
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
-        // DedupeResponseHeader zwija zdublowany nagłówek CORS (gateway + backend go dodają).
         return builder.routes()
-                .route("article", r -> r
+                .route("article", route -> route
                         .path("/api/v1/article/**")
-                        .filters(f -> f.dedupeResponseHeader(
-                                "Access-Control-Allow-Origin Access-Control-Allow-Credentials", "RETAIN_UNIQUE"))
-                        .uri(articleUri))
-                .route("company", r -> r
-                        .path("/api/v1/company/**",
-                              "/api/v1/company-view/**",
-                              "/api/v1/company-chart-mapping/**",
-                              "/api/v1/alias/**",
-                              "/api/v1/import/**")
-                        .filters(f -> f.dedupeResponseHeader(
-                                "Access-Control-Allow-Origin Access-Control-Allow-Credentials", "RETAIN_UNIQUE"))
-                        .uri(companyUri))
+                        .filters(filter -> filter.dedupeResponseHeader(
+                                "Access-Control-Allow-Origin Access-Control-Allow-Credentials",
+                                "RETAIN_UNIQUE"
+                        ))
+                        .uri(articleUri)
+                )
+                .route("company", route -> route
+                        .path(
+                                "/api/v1/company/**",
+                                "/api/v1/company-view/**",
+                                "/api/v1/company-chart-mapping/**",
+                                "/api/v1/alias/**",
+                                "/api/v1/import/**"
+                        )
+                        .filters(filter -> filter.dedupeResponseHeader(
+                                "Access-Control-Allow-Origin Access-Control-Allow-Credentials",
+                                "RETAIN_UNIQUE"
+                        ))
+                        .uri(companyUri)
+                )
                 .build();
     }
 
-    /** CORS obsługiwany na gatewayu (m.in. preflight OPTIONS, którego gateway nie przekazuje dalej). */
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:4200");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://app.signalhub.pl"
+        ));
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        config.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
+
         return new CorsWebFilter(source);
     }
 }
